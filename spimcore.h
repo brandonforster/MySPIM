@@ -1,3 +1,5 @@
+/* This file was provided in the project and WAS NOT authored by Andacht/ Forster */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

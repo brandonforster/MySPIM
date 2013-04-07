@@ -1,3 +1,10 @@
+// Brandon Forster
+// Michael Andacht
+// CDA 3103 - Computer Logic and Organization
+// 22 April 2013
+// MySPIM
+// A simple MIPS simulator
+
 #include "spimcore.h"
 
 

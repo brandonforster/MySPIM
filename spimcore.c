@@ -1,3 +1,5 @@
+/* This file was provided in the project and WAS NOT authored by Andacht/ Forster */
+
 #include "spimcore.h"
 
 #define MEMSIZE (65536 >> 2)
