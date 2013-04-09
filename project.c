@@ -11,7 +11,6 @@
 
 /* ALU */
 /* 10 Points */
-/* @author Brandon Forster */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
 	// Switch to control which ALU control gets executed
@@ -19,27 +18,59 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 	{
 		// 000: Z = A + B
 		case 000:
+			*ALUresult = A + B;
+			*Zero = (char)0;
 
-		// 001: Z = A – B
+		// 001: Z = A - B
 		case 001:
+			*ALUresult = A - B;
+			*Zero = (char)0;
 
 		// 010: if A < B, Z = 1; otherwise, Z = 0
 		case 010:
+			//@TODO this is the same as 011, I don't think it's supposed to be
+			if (A < B)
+			{
+				*ALUresult = 1;
+				*Zero = (char)0;
+			}
+			else
+			{
+				*ALUresult = 0;
+				*Zero = (char)1;
+			}
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
 		case 011:
+			//@TODO this is the same as 010, I don't think it's supposed to be
+			if (A < B)
+			{
+				*ALUresult = 1;
+				*Zero = (char)0;
+			}
+			else
+			{
+				*ALUresult = 0;
+				*Zero = (char)1;
+			}
 
 		// 100: Z = A AND B
 		case 100:
+			//@TODO- using bitwise and, is this right?
+			*ALUresult = A & B;
 
 		// 101: Z = A OR B
 		case 101:
+			//@TODO- using bitwise or, is this right?
+			*ALUresult = A | B;
 
 		// 110: Shift left B by 16 bits
 		case 110:
+			B << 16;
 
 		// 111: Z = NOT A
 		case 111:
+			*ALUresult = !A;
 
 		// bad input, handle error?
 		default:
