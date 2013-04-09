@@ -4,15 +4,47 @@
 // 22 April 2013
 // MySPIM
 // A simple MIPS simulator
+// Complete Git repository (with contributions and issue tracking) available at https://github.com/brandonforster/MySPIM
 
 #include "spimcore.h"
 
 
 /* ALU */
 /* 10 Points */
+/* @author Brandon Forster */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
+	// Switch to control which ALU control gets executed
+	switch ((int) ALUControl)
+	{
+		// 000: Z = A + B
+		case 000:
 
+		// 001: Z = A – B
+		case 001:
+
+		// 010: if A < B, Z = 1; otherwise, Z = 0
+		case 010:
+
+		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
+		case 011:
+
+		// 100: Z = A AND B
+		case 100:
+
+		// 101: Z = A OR B
+		case 101:
+
+		// 110: Shift left B by 16 bits
+		case 110:
+
+		// 111: Z = NOT A
+		case 111:
+
+		// bad input, handle error?
+		default:
+			break;
+	}
 }
 
 /* instruction fetch */
