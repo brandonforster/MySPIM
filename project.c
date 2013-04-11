@@ -20,11 +20,13 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 		case 000:
 			*ALUresult = A + B;
 			*Zero = (char)0;
+			break;
 
 		// 001: Z = A - B
 		case 001:
 			*ALUresult = A - B;
 			*Zero = (char)0;
+			break;
 
 		// 010: if A < B, Z = 1; otherwise, Z = 0
 		case 010:
@@ -39,6 +41,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 				*ALUresult = 0;
 				*Zero = (char)1;
 			}
+			break;
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
 		case 011:
@@ -53,24 +56,29 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 				*ALUresult = 0;
 				*Zero = (char)1;
 			}
+			break;
 
 		// 100: Z = A AND B
 		case 100:
 			//@TODO- using bitwise and, is this right?
 			*ALUresult = A & B;
+			break;
 
 		// 101: Z = A OR B
 		case 101:
 			//@TODO- using bitwise or, is this right?
 			*ALUresult = A | B;
+			break;
 
 		// 110: Shift left B by 16 bits
 		case 110:
 			B << 16;
+			break;
 
 		// 111: Z = NOT A
 		case 111:
 			*ALUresult = !A;
+			break;
 
 		// bad input, handle error?
 		default:
