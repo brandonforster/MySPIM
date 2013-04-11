@@ -129,7 +129,82 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
+	// declare a pointer, we'll have it point to our operand
+	unsigned *operand;
 
+	// ... once we figure out what it is
+	//@TODO figure out how to implement these, fairly certain this is not it
+	//input sources are correct, either data2 or ex val
+	switch ((int) ALUSrc)
+	{
+		// data2
+		case 0:
+			operand = &data2;
+			break;
+
+		// extended_value
+		case 1:
+			operand = &extended_value;
+			break;
+
+		default:
+			//@TODO catch some errors
+			return 1; // HALT, HAMMERZEIT
+	}
+
+	//declare a pointer, we'll have it point to what we want the ALU to do
+	char *operation;
+
+	// ... whatever that might be
+	//@TODO figure out what should be in this switch, logic is correct implementation probably isn't
+	switch ((int) ALUOp)
+	{
+		// 000: ALU will do addition or “don’t care”
+		case 000:
+			operation = &ALUOp;
+			break;
+
+		// 001: ALU will do subtraction
+		case 001:
+			operation = &ALUOp;
+			break;
+
+		// 010: ALU will do “set less than” operation
+		case 010:
+			operation = &ALUOp;
+			break;
+
+		// 011: ALU will do “set less than unsigned” operation
+		case 011:
+			operation = &ALUOp;
+			break;
+
+		// 100: ALU will do “AND” operation
+		case 100:
+			operation = &ALUOp;
+			break;
+
+		// 101: ALU will do “OR” operation
+		case 101:
+			operation = &ALUOp;
+			break;
+
+		// 110: ALU will shift left extended_value by 16 bits
+		case 110:
+			operation = &ALUOp;
+			break;
+
+		// 111: The instruction is an R-type instruction
+		case 111:
+			operation = (char*) &funct; //@TODO this seems gross, also wrong
+			break;
+	}
+
+	// the reason for the season, call the ALU
+	ALU(data1,*operand , *operation, ALUresult, Zero);
+
+	// we made it here without everything breaking! yay!
+	return 0;
 }
 
 /* Read / Write Memory */
