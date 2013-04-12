@@ -17,72 +17,72 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 	switch ((int) ALUControl)
 	{
 		// 000: Z = A + B
-		case 000:
-			*ALUresult = A + B;
-			*Zero = (char)0;
-			break;
+	case 000:
+		*ALUresult = A + B;
+		*Zero = (char)0;
+		break;
 
 		// 001: Z = A - B
-		case 001:
-			*ALUresult = A - B;
-			*Zero = (char)0;
-			break;
+	case 001:
+		*ALUresult = A - B;
+		*Zero = (char)0;
+		break;
 
 		// 010: if A < B, Z = 1; otherwise, Z = 0
-		case 010:
-			//@TODO this is the same as 011, I don't think it's supposed to be
-			if (A < B)
-			{
-				*ALUresult = 1;
-				*Zero = (char)0;
-			}
-			else
-			{
-				*ALUresult = 0;
-				*Zero = (char)1;
-			}
-			break;
+	case 010:
+		//@TODO this is the same as 011, I don't think it's supposed to be
+		if (A < B)
+		{
+			*ALUresult = 1;
+			*Zero = (char)0;
+		}
+		else
+		{
+			*ALUresult = 0;
+			*Zero = (char)1;
+		}
+		break;
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
-		case 011:
-			//@TODO this is the same as 010, I don't think it's supposed to be
-			if (A < B)
-			{
-				*ALUresult = 1;
-				*Zero = (char)0;
-			}
-			else
-			{
-				*ALUresult = 0;
-				*Zero = (char)1;
-			}
-			break;
+	case 011:
+		//@TODO this is the same as 010, I don't think it's supposed to be
+		if (A < B)
+		{
+			*ALUresult = 1;
+			*Zero = (char)0;
+		}
+		else
+		{
+			*ALUresult = 0;
+			*Zero = (char)1;
+		}
+		break;
 
 		// 100: Z = A AND B
-		case 100:
-			//@TODO- using bitwise and, is this right?
-			*ALUresult = A & B;
-			break;
+	case 100:
+		//@TODO- using bitwise and, is this right?
+		*ALUresult = A & B;
+		break;
 
 		// 101: Z = A OR B
-		case 101:
-			//@TODO- using bitwise or, is this right?
-			*ALUresult = A | B;
-			break;
+	case 101:
+		//@TODO- using bitwise or, is this right?
+		*ALUresult = A | B;
+		break;
 
 		// 110: Shift left B by 16 bits
-		case 110:
-			B << 16;
-			break;
+	case 110:
+		B << 16;
+		break;
 
 		// 111: Z = NOT A
-		case 111:
-			*ALUresult = !A;
-			break;
+	case 111:
+		*ALUresult = !A;
+		break;
 
 		// bad input, handle error?
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -138,18 +138,18 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	switch ((int) ALUSrc)
 	{
 		// data2
-		case 0:
-			operand = &data2;
-			break;
+	case 0:
+		operand = &data2;
+		break;
 
 		// extended_value
-		case 1:
-			operand = &extended_value;
-			break;
+	case 1:
+		operand = &extended_value;
+		break;
 
-		default:
-			//@TODO catch some errors
-			return 1; // HALT, HAMMERZEIT
+	default:
+		//@TODO catch some errors
+		return 1; // HALT, HAMMERZEIT
 	}
 
 	//declare a pointer, we'll have it point to what we want the ALU to do
@@ -160,44 +160,44 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	switch ((int) ALUOp)
 	{
 		// 000: ALU will do addition or “don’t care”
-		case 000:
-			operation = &ALUOp;
-			break;
+	case 000:
+		operation = &ALUOp;
+		break;
 
 		// 001: ALU will do subtraction
-		case 001:
-			operation = &ALUOp;
-			break;
+	case 001:
+		operation = &ALUOp;
+		break;
 
 		// 010: ALU will do “set less than” operation
-		case 010:
-			operation = &ALUOp;
-			break;
+	case 010:
+		operation = &ALUOp;
+		break;
 
 		// 011: ALU will do “set less than unsigned” operation
-		case 011:
-			operation = &ALUOp;
-			break;
+	case 011:
+		operation = &ALUOp;
+		break;
 
 		// 100: ALU will do “AND” operation
-		case 100:
-			operation = &ALUOp;
-			break;
+	case 100:
+		operation = &ALUOp;
+		break;
 
 		// 101: ALU will do “OR” operation
-		case 101:
-			operation = &ALUOp;
-			break;
+	case 101:
+		operation = &ALUOp;
+		break;
 
 		// 110: ALU will shift left extended_value by 16 bits
-		case 110:
-			operation = &ALUOp;
-			break;
+	case 110:
+		operation = &ALUOp;
+		break;
 
 		// 111: The instruction is an R-type instruction
-		case 111:
-			operation = (char*) &funct; //@TODO this seems gross, also wrong
-			break;
+	case 111:
+		operation = (char*) &funct; //@TODO this seems gross, also wrong
+		break;
 	}
 
 	// the reason for the season, call the ALU
@@ -226,6 +226,50 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
+	// increment the PC
+	*PC+= 4;
 
+	// shift branch offset
+	extended_value = extended_value << 2;
+
+	// shift jump target
+	jsec = jsec << 2;
+
+	// @TODO PC + 4 should be bytes 31 - 26, ensure they are
+	// @TODO instruction should be bytes 0 - 25, ensure they are
+
+	// Branch mux
+	switch (Branch)
+	{
+	case 0:
+		// use PC+4 value, do nothing
+		break;
+
+		// when the mux goes to 1, use extended_value for PC
+	case 1:
+		*PC = extended_value;
+		break;
+
+		//@TODO handle errors
+	default:
+		return;
+	}
+
+	// Jump mux
+	switch (Jump)
+	{
+	case 0:
+		// use current PC value, do nothing
+		break;
+
+		// when the mux goes to 1, use jsec
+	case 1:
+		*PC = jsec;
+		break;
+
+		//@TODO handle errors
+	default:
+		return;
+	}
 }
 
