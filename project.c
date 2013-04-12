@@ -159,7 +159,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	//@TODO figure out what should be in this switch, logic is correct implementation probably isn't
 	switch ((int) ALUOp)
 	{
-		// 000: ALU will do addition or “don’t care”
+		// 000: ALU will do addition or "don't care"
 	case 000:
 		operation = &ALUOp;
 		break;
@@ -169,22 +169,22 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 		operation = &ALUOp;
 		break;
 
-		// 010: ALU will do “set less than” operation
+		// 010: ALU will do "set less than" operation
 	case 010:
 		operation = &ALUOp;
 		break;
 
-		// 011: ALU will do “set less than unsigned” operation
+		// 011: ALU will do "set less than unsigned" operation
 	case 011:
 		operation = &ALUOp;
 		break;
 
-		// 100: ALU will do “AND” operation
+		// 100: ALU will do "AND" operation
 	case 100:
 		operation = &ALUOp;
 		break;
 
-		// 101: ALU will do “OR” operation
+		// 101: ALU will do "OR" operation
 	case 101:
 		operation = &ALUOp;
 		break;
