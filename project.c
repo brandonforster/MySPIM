@@ -114,7 +114,9 @@ int instruction_decode(unsigned op,struct_controls *controls)
 /* 5 Points */
 void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigned *data2)
 {
-
+	//  Read the registers addressed by r1 and r2 from Reg, and write the read values to data1 and data2 respectively
+	*data1 = Reg[r1];
+	*data2 = Reg[r2];
 }
 
 
