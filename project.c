@@ -98,7 +98,23 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
+	// we will use these masks to only change values we want
+	unsigned opMask		= 0x7e000000;	// instruction [31-26]
+	unsigned r1Mask		= 0x1f000000;	// instruction [25-21]
+	unsigned r2Mask		= 0x000f8000;	// instruction [20-16]
+	unsigned r3Mask		= 0x00007c00;	// instruction [15-11]
+	unsigned functMask	= 0x0000003f;	// instruction [5-0]
+	unsigned offsetMask	= 0x0000ffff;	// instruction [15-0]
+	unsigned jsecMask	= 0x01ffffff;	// instruction [25-0]
 
+	// apply masks
+	*op		= instruction & opMask;
+	*r1		= instruction & r1Mask;
+	*r2		= instruction & r2Mask;
+	*r3		= instruction & r3Mask;
+	*funct	= instruction & functMask;
+	*offset	= instruction & offsetMask;
+	*jsec	= instruction & jsecMask;
 }
 
 
