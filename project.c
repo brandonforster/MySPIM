@@ -186,6 +186,9 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	// declare a pointer, we'll have it point to our operand
 	unsigned *operand;
 
+	//declare a pointer, we'll have it point to what we want the ALU to do
+	char* operation;
+
 	// ... once we figure out what it is
 	//@TODO figure out how to implement these, fairly certain this is not it
 	//input sources are correct, either data2 or ex val
@@ -205,9 +208,6 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 		//@TODO catch some errors
 		return 1; // HALT, HAMMERZEIT
 	}
-
-	//declare a pointer, we'll have it point to what we want the ALU to do
-	char *operation;
 
 	// ... whatever that might be
 	//@TODO figure out what should be in this switch, logic is correct implementation probably isn't
