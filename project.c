@@ -137,28 +137,119 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 int instruction_decode(unsigned op,struct_controls *controls)
 {
 	//Switch for different Op codes to decode 
-	//TODO get proper OP codes and proper values
-	switch(op) {
-	case 000: 
-		break;
-	case 001:
-		break;
-	case 010:
-		break;
-	case 011: 
-		break;
-	case 100:  
-		break;
-	case 101:  
-		break;
-	case 110: 
-		break;
-	case 111:  
-		break;
-	default:
-		return 1;
-	}
-	return 0;
+	//TODO Get proper Op codes and find correct values that go in controls
+	 switch(op){
+		case 0:   //R-type instructions (add, and, nor, or, sub, slt, sltu)
+   			       controls->RegDst = 1; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 7;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 0; 
+			       controls->RegWrite = 1;
+                   break;
+      
+         case 8:   //add immediate
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 0;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 1;
+                   break;
+                                   
+         case 10:  //slti (signed)
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 2;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 1;
+                   break;          
+          
+          case 9:  //sltiu (unsinged)
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 3;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 1;
+                   break;
+          
+          case 4:  //beq
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 1; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 1;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 0; 
+			       controls->RegWrite = 0;
+                   break;
+          
+          case 2:  //j
+   			       controls->RegDst = 0; 
+                   controls->Jump = 1; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 0;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 0; 
+			       controls->RegWrite = 0;
+                   break;
+          
+          case 35:  //lw
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 1; 
+			       controls->MemtoReg = 1;
+			       controls->ALUOp = 0;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 1;
+                   break;
+                   
+          case 15:  //lui
+   			       controls->RegDst = 0; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 0;
+			       controls->ALUOp = 6;
+			       controls->MemWrite = 0; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 1;
+                   break;         
+                   
+          case 43:  //sw
+   			       controls->RegDst = 2; 
+                   controls->Jump = 0; 
+			       controls->Branch = 0; 
+			       controls->MemRead = 0; 
+			       controls->MemtoReg = 2;
+			       controls->ALUOp = 0;
+			       controls->MemWrite = 1; 
+			       controls->ALUSrc = 1; 
+			       controls->RegWrite = 0;
+                   break;
+                   
+                   default: return 1;
+                   } 
+       return 0;
 }
 
 /* Read Register */
@@ -175,8 +266,17 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-	//Not sure this is right
-	*extended_value = offset; 
+	//If negative sign extend for negative
+	unsigned extend1s = 0xFFFF0000;     
+	unsigned Negative = offset >> 15;
+
+    if (Negative == 1)  
+         *extended_value = extend1s | offset;
+
+    //Otherwise sign extend normally   
+    else 
+         *extended_value = offset;
+         
 }
 
 /* ALU operations */
@@ -265,16 +365,31 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
-	//Possiblly right seems to simple.
+	//if reading from memory
 	if (MemRead == 1) {
-		*memdata = Mem[ALUresult];
-    }
+		if((ALUresult % 4) == 0){
+			*memdata = Mem[ALUresult >> 2];    
+		}
 
-    if (MemWrite == 1) {
-		Mem[ALUresult] = data2;
-    }
+		//Improper Address
+		else{
+			return 1;
+		}
+
+	}
+	
+	//If writting to memory
+	if (MemWrite == 1) {
+		if((ALUresult % 4) == 0){
+			Mem[ALUresult >> 2] = data2;
+		}
+		//Improper Address Halt
+		else{
+			return 1;
+		}
+	}
                            
-    return 0; 
+             return 0; 
 }
 
 
