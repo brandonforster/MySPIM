@@ -139,7 +139,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 	//Switch for different Op codes to decode 
 	//TODO Get proper Op codes and find correct values that go in controls
 	 switch(op){
-		case 0:   //R-type instructions (add, and, nor, or, sub, slt, sltu)
+		case 0:   //This is for R Type
    			       controls->RegDst = 1; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -151,7 +151,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;
       
-         case 8:   //add immediate
+         case 8:   // Case for add immediate
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -163,7 +163,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;
                                    
-         case 10:  //slti (signed)
+         case 10:  //Case for slti
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -175,7 +175,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;          
           
-          case 9:  //sltiu (unsinged)
+          case 9:  //Case for sltiu
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -187,7 +187,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;
           
-          case 4:  //beq
+          case 4:  //Case for Branch Equal
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 1; 
@@ -199,7 +199,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 0;
                    break;
           
-          case 2:  //j
+          case 2:  //Case for Jump
    			       controls->RegDst = 0; 
                    controls->Jump = 1; 
 			       controls->Branch = 0; 
@@ -211,7 +211,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 0;
                    break;
           
-          case 35:  //lw
+          case 35:  //Case for Load word
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -223,7 +223,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;
                    
-          case 15:  //lui
+          case 15:  //Case for load unsigned imediate
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -235,7 +235,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;         
                    
-          case 43:  //sw
+          case 43:  //Case for Save word
    			       controls->RegDst = 2; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -247,6 +247,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 0;
                    break;
                    
+				   //Return 1 if Halt
                    default: return 1;
                    } 
        return 0;
