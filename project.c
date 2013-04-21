@@ -30,8 +30,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 
 		// 010: if A < B, Z = 1; otherwise, Z = 0
 	case 010:
-		//@TODO this is the same as 011, I don't think it's supposed to be
-		if (A < B)
+		if ((signed)A < (signed)B)
 		{
 			*ALUresult = 1;
 			*Zero = (char)0;
@@ -45,8 +44,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
 	case 011:
-		//@TODO this is the same as 010, I don't think it's supposed to be
-		if (A < B)
+		if ((unsigned)A < (unsigned)B)
 		{
 			*ALUresult = 1;
 			*Zero = (char)0;
