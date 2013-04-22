@@ -40,6 +40,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
 	case 011:	
+		if (A < B)
 		{
 			*ALUresult = 1;
 		}
