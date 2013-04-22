@@ -99,8 +99,9 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
            
            }
 	//If not Halt
-    else 
-    return 1; 
+    else{
+		return 1; 
+	}
 }
 
 
@@ -109,7 +110,7 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
 	// we will use these partitions to only change values we want
-	unsigned rPartition		= 0x1f000000;	
+	unsigned rPartition		= 0x1f;	
 	unsigned functopPartition	= 0x0000003f;	
 	unsigned offsetPartition	= 0x0000ffff;	
 	unsigned jsecPartition	= 0x03ffffff;	
@@ -169,7 +170,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;          
           
-          case 9:  //Case for sltiu
+          case 11:  //Case for sltiu
    			       controls->RegDst = 0; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -182,11 +183,11 @@ int instruction_decode(unsigned op,struct_controls *controls)
                    break;
           
           case 4:  //Case for Branch Equal
-   			       controls->RegDst = 0; 
+   			       controls->RegDst = 2; 
                    controls->Jump = 0; 
 			       controls->Branch = 1; 
 			       controls->MemRead = 0; 
-			       controls->MemtoReg = 0;
+			       controls->MemtoReg = 2;
 			       controls->ALUOp = 1;
 			       controls->MemWrite = 0; 
 			       controls->ALUSrc = 0; 
