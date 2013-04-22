@@ -16,57 +16,48 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 	// Switch to control which ALU control gets executed
 	switch ((int) ALUControl)
 	{
-		// 000: Z = A + B
+		// 000: Z = A + B ADD
 	case 000:
 		*ALUresult = A + B;
-		*Zero = (char)0;
 		break;
 
 		// 001: Z = A - B
 	case 001:
 		*ALUresult = A - B;
-		*Zero = (char)0;
 		break;
 
-		// 010: if A < B, Z = 1; otherwise, Z = 0
+		// 010: if A < B, Z = 1; otherwise, Z = 0 for Signed
 	case 010:
-		//@TODO this is the same as 011, I don't think it's supposed to be
-		if (A < B)
+		if ((signed)A < (signed)B)
 		{
 			*ALUresult = 1;
-			*Zero = (char)0;
 		}
 		else
 		{
 			*ALUresult = 0;
-			*Zero = (char)1;
 		}
 		break;
 
 		// 011: if A < B, Z = 1; otherwise, Z = 0 (A and B are unsigned integers)
-	case 011:
-		//@TODO this is the same as 010, I don't think it's supposed to be
+	case 011:	
 		if (A < B)
 		{
 			*ALUresult = 1;
-			*Zero = (char)0;
 		}
 		else
 		{
 			*ALUresult = 0;
-			*Zero = (char)1;
 		}
 		break;
 
-		// 100: Z = A AND B
+		// 100: Z = A AND B (bitwise)
 	case 100:
-		//@TODO- using bitwise and, is this right?
 		*ALUresult = A & B;
 		break;
 
-		// 101: Z = A OR B
+		// 101: Z = A OR B (bitwise)
 	case 101:
-		//@TODO- using bitwise or, is this right?
+
 		*ALUresult = A | B;
 		break;
 
@@ -75,14 +66,20 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 		B << 16;
 		break;
 
-		// 111: Z = NOT A
+		// 111: Z = NOT A (bitwise)
 	case 111:
-		*ALUresult = !A;
+		*ALUresult = ~A;
 		break;
 
-		// bad input, handle error?
-	default:
-		break;
+
+	}
+	//Check for Zeros (Zero = 1(true) means it is 0(Confusing))
+	if(*ALUresult == 0){
+		*Zero = 1;
+	}
+	// *Zero = 0(false) Means its not Zero
+	else{
+		*Zero = 0;
 	}
 }
 
@@ -111,23 +108,20 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
-	// we will use these masks to only change values we want
-	unsigned opMask		= 0x7e000000;	// instruction [31-26]
-	unsigned r1Mask		= 0x1f000000;	// instruction [25-21]
-	unsigned r2Mask		= 0x000f8000;	// instruction [20-16]
-	unsigned r3Mask		= 0x00007c00;	// instruction [15-11]
-	unsigned functMask	= 0x0000003f;	// instruction [5-0]
-	unsigned offsetMask	= 0x0000ffff;	// instruction [15-0]
-	unsigned jsecMask	= 0x01ffffff;	// instruction [25-0]
+	// we will use these partitions to only change values we want
+	unsigned rPartition		= 0x1f000000;	
+	unsigned functopPartition	= 0x0000003f;	
+	unsigned offsetPartition	= 0x0000ffff;	
+	unsigned jsecPartition	= 0x03ffffff;	
 
-	// apply masks
-	*op		= instruction & opMask;
-	*r1		= instruction & r1Mask;
-	*r2		= instruction & r2Mask;
-	*r3		= instruction & r3Mask;
-	*funct	= instruction & functMask;
-	*offset	= instruction & offsetMask;
-	*jsec	= instruction & jsecMask;
+	// apply partitions and shifts
+	*op		= (instruction >> 26) & functopPartition;	// instruction [31-26]
+	*r1		= (instruction >> 21) & rPartition; // instruction [25-21]
+	*r2		= (instruction >> 16) & rPartition; // instruction [20-16]
+	*r3		= (instruction >> 11) & rPartition; // instruction [15-11]
+	*funct	= instruction & functopPartition; // instruction [5-0]
+	*offset	= instruction & offsetPartition; // instruction [15-0]
+	*jsec	= instruction & jsecPartition; // instruction [25-0]
 }
 
 
@@ -235,7 +229,7 @@ int instruction_decode(unsigned op,struct_controls *controls)
 			       controls->RegWrite = 1;
                    break;         
                    
-          case 43:  //Case for Save word
+          case 43:  //Case for Store word
    			       controls->RegDst = 2; 
                    controls->Jump = 0; 
 			       controls->Branch = 0; 
@@ -248,8 +242,10 @@ int instruction_decode(unsigned op,struct_controls *controls)
                    break;
                    
 				   //Return 1 if Halt
-                   default: return 1;
-                   } 
+          default:
+				   return 1;
+	
+     } 
        return 0;
 }
 
@@ -272,11 +268,12 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 	unsigned Negative = offset >> 15;
 
     if (Negative == 1)  
-         *extended_value = extend1s | offset;
+         *extended_value = offset | extend1s;
+
 
     //Otherwise sign extend normally   
     else 
-         *extended_value = offset;
+         *extended_value = offset & 0x0000ffff;
          
 }
 
@@ -284,95 +281,83 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
-	// declare a pointer, we'll have it point to our operand
-	unsigned *operand;
-
-	//declare a pointer, we'll have it point to what we want the ALU to do
-	char* operation;
-
-	// ... once we figure out what it is
-	//@TODO figure out how to implement these, fairly certain this is not it
-	//input sources are correct, either data2 or ex val
-	switch ((int) ALUSrc)
-	{
-		// data2
-	case 0:
-		operand = &data2;
-		break;
-
-		// extended_value
-	case 1:
-		operand = &extended_value;
-		break;
-
-	default:
-		//@TODO catch some errors
-		return 1; // HALT, HAMMERZEIT
+	//Check which data we are opperating on by ALU src
+	if(ALUSrc == 1){
+		data2 = extended_value;
 	}
 
-	// ... whatever that might be
-	//@TODO figure out what should be in this switch, logic is correct implementation probably isn't
-	switch ((int) ALUOp)
-	{
-		// 000: ALU will do addition or "don't care"
-	case 000:
-		operation = &ALUOp;
-		break;
+	//All ALUOps just send instructions to ALU which updates ALU result
+	//ALUOP 7 is R type insturction which requires use of funct
+	if(ALUOp == 7){
+		//Find the proper ALUOp for each R type instruction
+		switch(funct) {
+			
+			//Add
+			case 32:
+					ALUOp = 0;
+					break;
+			//Sub
+			case 34:
+					ALUOp = 1;
+					break;
+			//Set Less Signed
+			case 42:
+					ALUOp = 2;
+					break;
+			//Set Less Unsigned
+			case 43:
+					ALUOp = 3;
+					break;
+			//And
+			case 36:
+					ALUOp = 4;
+					break;
+			//Or
+			case 37:
+					ALUOp = 5;
+					break;
+			//Shift Left extended value 16
+			case 6: 
+					ALUOp = 6;
+					break;
+			//Nor
+			case 39:
+					ALUOp = 7;
+					break;
+			//Halt not proper funct
+			default:
+					return 1;
 
-		// 001: ALU will do subtraction
-	case 001:
-		operation = &ALUOp;
-		break;
-
-		// 010: ALU will do "set less than" operation
-	case 010:
-		operation = &ALUOp;
-		break;
-
-		// 011: ALU will do "set less than unsigned" operation
-	case 011:
-		operation = &ALUOp;
-		break;
-
-		// 100: ALU will do "AND" operation
-	case 100:
-		operation = &ALUOp;
-		break;
-
-		// 101: ALU will do "OR" operation
-	case 101:
-		operation = &ALUOp;
-		break;
-
-		// 110: ALU will shift left extended_value by 16 bits
-	case 110:
-		operation = &ALUOp;
-		break;
-
-		// 111: The instruction is an R-type instruction
-	case 111:
-		operation = (char*) &funct; //@TODO this seems gross, also wrong
-		break;
+		}
+		//Send to ALU for funct
+		ALU(data1,data2,ALUOp,ALUresult,Zero);
+				
 	}
 
-	// the reason for the season, call the ALU
-	ALU(data1,*operand , *operation, ALUresult, Zero);
 
-	// we made it here without everything breaking! yay!
+	else{
+	//Send to ALU for non funct
+	ALU(data1,data2,ALUOp,ALUresult,Zero);
+	}
+	
+	//Return
 	return 0;
+
+
 }
 
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
+
 	//if reading from memory
 	if (MemRead == 1) {
 		if((ALUresult % 4) == 0){
 			*memdata = Mem[ALUresult >> 2];    
 		}
 
-		//Improper Address
+		//Improper Address Halt
 		else{
 			return 1;
 		}
@@ -398,76 +383,46 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
-	 // If Mem to Register
-     if (MemtoReg == 1 && RegDst == 0) {
-		Reg[r2] = memdata;
-     }
+	//Check if writing
+	if(RegWrite == 1){
+		 // If Mem to Register
+		 if (MemtoReg == 1 && RegDst == 0) {
+			Reg[r2] = memdata;
+		 }
 
-	 //If Mem to Register but r3
+		 //If Mem to Register but r3
 
-	 else if(MemtoReg == 1 && RegDst == 1){
-		 Reg[r3] = memdata;
-	 }
+		 else if(MemtoReg == 1 && RegDst == 1){
+			 Reg[r3] = memdata;
+		 }
      
-	 // If Result to Register
-     else if (MemtoReg == 0 && RegDst == 0) {
-		Reg[r2] = ALUresult;
-     }
+		 // If Result to Register
+		 else if (MemtoReg == 0 && RegDst == 0) {
+			Reg[r2] = ALUresult;
+		 }
                   
-	 // If Result to Register but next value
-     else if (MemtoReg == 0 && RegDst == 1){
-		Reg[r3] = ALUresult;
-     }
+		 // If Result to Register but next value
+		 else if (MemtoReg == 0 && RegDst == 1){
+			Reg[r3] = ALUresult;
+		 }
+	}
 }
 
 /* PC update */
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
-	// increment the PC
-	*PC+= 4;
+	// increment the PC by 4 always
+	*PC += 4;
 
-	// shift branch offset
-	extended_value = extended_value << 2;
-
-	// shift jump target
-	jsec = jsec << 2;
-
-	// @TODO PC + 4 should be bytes 31 - 26, ensure they are
-	// @TODO instruction should be bytes 0 - 25, ensure they are
-
-	// Branch mux
-	switch (Branch)
-	{
-	case 0:
-		// use PC+4 value, do nothing
-		break;
-
-		// when the mux goes to 1, use extended_value for PC
-	case 1:
-		*PC = extended_value;
-		break;
-
-		//@TODO handle errors
-	default:
-		return;
+	//If branching and we got a zero properly add extended value
+	if(Zero == 1 && Branch == 1){
+		*PC += extended_value << 2;
 	}
 
-	// Jump mux
-	switch (Jump)
-	{
-	case 0:
-		// use current PC value, do nothing
-		break;
-
-		// when the mux goes to 1, use jsec
-	case 1:
-		*PC = jsec;
-		break;
-
-		//@TODO handle errors
-	default:
-		return;
+	// If Jumping shift Instruction and combine with PC
+	if(Jump == 1){
+		*PC = (jsec << 2) | (*PC & 0xf0000000);
 	}
 }
 
